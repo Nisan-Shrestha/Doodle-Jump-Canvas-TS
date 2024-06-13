@@ -76,10 +76,31 @@ class Player {
     window.addEventListener("keyup", (e) => {
       this.keysPressed.delete(e.key);
     });
+
+    // Event listener for device orientation
+    // this.ctx.fillText("left", 10, 120);
+    if (window.DeviceOrientationEvent) {
+      console.log("DeviceOrientation is supported");
+    } else {
+      console.log("DeviceOrientation is not supported");
+    }
+    // window.addEventListener("deviceorientation", (event) => {
+    //   let gam = event.gamma as number;
+    //   console.log(gam, "aksndkjabnsjkld");
+    //   if (gam < -15) {
+    //     this.moveLeft();
+    //     this.inputReceived = true;
+    //   } else if (gam > 15) {
+    //     this.inputReceived = true;
+    //     this.moveRight();
+    //   }
+    // });
+
+    console.log("DeviceOrientation event listener added");
   }
 
   handleInput() {
-    this.inputReceived = false;
+    // this.inputReceived = false;
 
     if (
       this.keysPressed.has(this.keymap.left) ||
@@ -105,6 +126,7 @@ class Player {
 
   moveLeft() {
     this.rigidBody.ax = -PLAYER_MOVE_SPEED_X * 3000;
+    console.log("234567890-")
   }
   moveRight() {
     this.rigidBody.ax = PLAYER_MOVE_SPEED_X * 3000;
@@ -119,7 +141,7 @@ class Player {
     this.pseudoSpriteRight.rect.y = this.rect.y;
   }
   update(delta: number) {
-    // this.inputReceived = false;
+    this.inputReceived = false;
     this.handleInput();
     if (!this.inputReceived) {
       this.rigidBody.ax = 0;
@@ -149,12 +171,9 @@ class Player {
         new Vect2D(this.pseudoSpriteRight.sourceFrameWidth * 0, 0)
       );
     }
-    if(this.rect.x<0)
-      this.rect.x += this.ctx.canvas.width ;
-    if(this.rect.x>this.ctx.canvas.width)
-      this.rect.x -= this.ctx.canvas.width ;
-    
-
+    if (this.rect.x < 0) this.rect.x += this.ctx.canvas.width;
+    if (this.rect.x > this.ctx.canvas.width)
+      this.rect.x -= this.ctx.canvas.width;
   }
 }
 

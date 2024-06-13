@@ -18,9 +18,8 @@ let MAX_DELTA_SIZE = 1000 / 60;
 let highScore = localStorage.getItem("DoodleJumpHighScore");
 if (highScore === null) {
   highScore = "0";
-  }
+}
 let highScoreNumber = parseInt(highScore);
-
 
 // let globalClickListener ;
 const canvas: HTMLCanvasElement = document.getElementById(
@@ -183,7 +182,7 @@ function update() {
       highScoreNumber = score;
       localStorage.setItem("DoodleJumpHighScore", highScoreNumber.toString());
     }
-    
+
     // Retrieve high score from local storage and update UI
     if (!Game_Over)
       setTimeout(() => {
@@ -196,29 +195,24 @@ function update() {
   let now = Date.now();
   let delta = (now - lastTimestamp) / 1000;
   lastTimestamp = now;
-  console.log("untouched: ", delta);
-  // console.log("update");
   while (delta > 0) {
     let updateDelta = Math.min(MAX_DELTA_SIZE / 1000, delta);
-    console.log(updateDelta, MAX_DELTA_SIZE / 1000, delta);
     player.update(updateDelta);
 
     player.updatePseudoSprites();
-    // console.log(player.rigidBody);
     obsArray.forEach((obs) => {
       obs.spriteRenderer.update(updateDelta);
-      // obs.rect.y += 1;
       if (obs.rect.y > canvas.height) {
         activeObsCount = OBS_GEN + 1 - Math.floor(score / 250);
-        console.log("activeObsCount:", activeObsCount, "OBS_GEN:", OBS_GEN);
+        // console.log("activeObsCount:", activeObsCount, "OBS_GEN:", OBS_GEN);
         activeObsCount = Math.max(7 * 2, activeObsCount);
-        console.log(
-          "score: ",
-          score.toFixed(0),
-          activeObsCount,
-          obsArray.length,
-          obsArray
-        );
+        // console.log(
+        //   "score: ",
+        //   score.toFixed(0),
+        //   activeObsCount,
+        //   obsArray.length,
+        //   obsArray
+        // );
         if (activeObsCount < obsArray.length && Math.random() > 0.1) {
           obsArray.splice(obsArray.indexOf(obs), 1);
           return;
@@ -265,8 +259,14 @@ function render() {
   });
 
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-  ctx.roundRect(5, 5, 10 + 160 + 15 * Math.log10(score>0?score:1), 15 + 32,[30]);
-  ctx.fill()
+  ctx.roundRect(
+    5,
+    5,
+    10 + 160 + 15 * Math.log10(score > 0 ? score : 1),
+    15 + 32,
+    [30]
+  );
+  ctx.fill();
   ctx.font = "32px Inter";
   ctx.fillStyle = "black";
   ctx.fillText("Score: " + score.toFixed(0), 32, 10 + 32);
@@ -307,17 +307,17 @@ function drawGameOverScreen() {
   ctx.fillText("Game Over", canvas.width / 2 - 60, canvas.height / 2 - 60);
   ctx.fillText(
     "Your Score: " + score.toFixed(0),
-    canvas.width / 2 -120,
+    canvas.width / 2 - 120,
     canvas.height / 2
   );
   ctx.fillText(
     "High Score: " + highScoreNumber.toFixed(0),
-    canvas.width / 2 -120,
+    canvas.width / 2 - 120,
     canvas.height / 2 + 30
   );
   ctx.fillText(
     "Press R to restart",
-    canvas.width / 2 -120,
+    canvas.width / 2 - 120,
     canvas.height / 2 + 60
   );
 }
