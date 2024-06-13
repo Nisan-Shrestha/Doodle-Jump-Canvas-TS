@@ -98,7 +98,7 @@ class Player {
     }
 
     if (this.keysPressed.has(this.keymap.fire)) {
-      this.jump();
+      // this.jump();
       // this.inputReceived = true;
     }
   }
@@ -110,7 +110,7 @@ class Player {
     this.rigidBody.ax = PLAYER_MOVE_SPEED_X * 3000;
   }
   jump() {
-    // this.rigidBody.vy = -1000;
+    this.rigidBody.vy = -1000;
   }
   updatePseudoSprites() {
     this.pseudoSpriteLeft.rect.x = this.rect.x - this.ctx.canvas.width;
