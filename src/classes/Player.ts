@@ -88,13 +88,13 @@ class Player {
     window.addEventListener("deviceorientation", (event) => {
       let gam = event.gamma as number;
       console.log(gam, "aksndkjabnsjkld");
-      if (gam < -25) {
-        this.moveLeft();
+      if (gam < -15) {
+        this.moveLeft(gam/60);
         this.tilted = true;
-      } else if (gam > 25) {
+      } else if (gam > 15) {
         this.tilted = true;
-        this.moveRight();
-      }else{
+        this.moveRight(gam/60);
+      } else {
         this.tilted = false;
       }
     });
@@ -126,12 +126,12 @@ class Player {
     }
   }
 
-  moveLeft() {
-    this.rigidBody.ax = -PLAYER_MOVE_SPEED_X * 3000;
+  moveLeft(value:number = 1) {
+    this.rigidBody.ax = -PLAYER_MOVE_SPEED_X * 3000*value;
     // console.log("234567890-");
   }
-  moveRight() {
-    this.rigidBody.ax = PLAYER_MOVE_SPEED_X * 3000;
+  moveRight(value:number = 1) {
+    this.rigidBody.ax = PLAYER_MOVE_SPEED_X * 3000 * value;
   }
   jump() {
     this.rigidBody.vy = -1000;
@@ -175,6 +175,12 @@ class Player {
     if (this.rect.x < 0) this.rect.x += this.ctx.canvas.width;
     if (this.rect.x > this.ctx.canvas.width)
       this.rect.x -= this.ctx.canvas.width;
+  }
+
+  render(ctx: CanvasRenderingContext2D) {
+    this.spriteRenderer.render(ctx);
+    this.pseudoSpriteLeft.render(ctx);
+    this.pseudoSpriteRight.render(ctx);
   }
 }
 

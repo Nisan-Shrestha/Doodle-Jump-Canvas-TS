@@ -251,11 +251,9 @@ function update() {
 
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  player.spriteRenderer.render(ctx);
-  player.pseudoSpriteLeft.render(ctx);
-  player.pseudoSpriteRight.render(ctx);
+  player.render(ctx)
   obsArray.forEach((obs) => {
-    obs.spriteRenderer.render(ctx);
+    obs.render(ctx);
   });
 
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";

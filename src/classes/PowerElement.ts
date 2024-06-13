@@ -1,11 +1,9 @@
 import { SpriteRenderer } from "./SpriteRenderer";
 import { Rect2D } from "./Rect2D";
 import { Vect2D } from "./Vect2D";
-import PowerElement from "./PowerElement";
-class Obstacle {
+class PowerElement {
   rect: Rect2D;
   spriteRenderer: SpriteRenderer;
-  addOn: PowerElement | null = null;
   constructor(
     x: number,
     y: number,
@@ -22,15 +20,6 @@ class Obstacle {
       [new Vect2D(0, 0)]
     );
   }
-
-  setAddOn(addOn: PowerElement) {
-    this.addOn = addOn;
-  }
-
-  render(ctx: CanvasRenderingContext2D) {
-    this.spriteRenderer.render(ctx);
-    if (this.addOn) this.addOn.spriteRenderer.render(ctx);
-  }
 }
 
-export default Obstacle;
+export default PowerElement;
