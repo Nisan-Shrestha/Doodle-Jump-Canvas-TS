@@ -14,6 +14,7 @@ class Player {
   pseudoSpriteLeft: SpriteRenderer;
   pseudoSpriteRight: SpriteRenderer;
   inputReceived: boolean = false;
+  tilted: boolean = false;
   keysPressed = new Set<string>();
   isGrounded = false;
   ctx: CanvasRenderingContext2D;
@@ -84,24 +85,25 @@ class Player {
     } else {
       console.log("DeviceOrientation is not supported");
     }
-    // window.addEventListener("deviceorientation", (event) => {
-    //   let gam = event.gamma as number;
-    //   console.log(gam, "aksndkjabnsjkld");
-    //   if (gam < -15) {
-    //     this.moveLeft();
-    //     this.inputReceived = true;
-    //   } else if (gam > 15) {
-    //     this.inputReceived = true;
-    //     this.moveRight();
-    //   }
-    // });
+    window.addEventListener("deviceorientation", (event) => {
+      let gam = event.gamma as number;
+      console.log(gam, "aksndkjabnsjkld");
+      if (gam < -25) {
+        this.moveLeft();
+        this.tilted = true;
+      } else if (gam > 25) {
+        this.tilted = true;
+        this.moveRight();
+      }else{
+        this.tilted = false;
+      }
+    });
 
     console.log("DeviceOrientation event listener added");
   }
 
   handleInput() {
-    // this.inputReceived = false;
-
+    this.inputReceived = false;
     if (
       this.keysPressed.has(this.keymap.left) ||
       this.keysPressed.has("ArrowLeft")
@@ -126,7 +128,7 @@ class Player {
 
   moveLeft() {
     this.rigidBody.ax = -PLAYER_MOVE_SPEED_X * 3000;
-    console.log("234567890-")
+    // console.log("234567890-");
   }
   moveRight() {
     this.rigidBody.ax = PLAYER_MOVE_SPEED_X * 3000;
@@ -141,9 +143,8 @@ class Player {
     this.pseudoSpriteRight.rect.y = this.rect.y;
   }
   update(delta: number) {
-    this.inputReceived = false;
     this.handleInput();
-    if (!this.inputReceived) {
+    if (!this.inputReceived && !this.tilted) {
       this.rigidBody.ax = 0;
     }
     if (this.isGrounded) {
