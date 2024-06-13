@@ -3,6 +3,7 @@ import Obstacle from "./classes/Obstacle";
 import { Vect2D } from "./classes/Vect2D";
 import Rect2D from "./classes/Rect2D";
 import { AABBIntersect } from "./utils";
+import { Button } from "./utils";
 // import Rect2D from './classes/Rect2D';
 let score = 0;
 let player: Player;
@@ -20,7 +21,7 @@ if (highScore === null) {
   highScore = "0";
 }
 let highScoreNumber = parseInt(highScore);
-
+let playListener: EventListener;
 // let globalClickListener ;
 const canvas: HTMLCanvasElement = document.getElementById(
   "gameCanvas"
@@ -33,6 +34,10 @@ let playerSprite = new Image();
 loadSprite(playerSprite, "img/playerSheet.png");
 let obstacleSprite = new Image();
 loadSprite(obstacleSprite, "img/enemySheet.png");
+let menuSprite= new Image();
+loadSprite(menuSprite, "img/start.png");
+let playSprite= new Image();
+loadSprite(playSprite, "img/play.png");
 
 //sprites Loading
 
@@ -64,32 +69,25 @@ function setupCanvas() {
     canvas.style.backgroundSize = "cover";
     canvas.style.backgroundPositionX = "center";
     canvas.style.backgroundPositionY = "bottom";
-
     // canvas.style.border = "red 1px solid"
   }
-  window.addEventListener("keydown", (e) => {
-    if (e.key.toLowerCase() === "r") {
-      if (Game_Over) {
-        Game_Over = false;
-        score = 0;
-
-        obsArray = [];
-        beginGame();
-      }
-    }
-  });
-
-  // globalClickListener = window.addEventListener("keydown", (e) => {
-  //   if (e.key.toLowerCase() === "r") {
-  //     if (Game_Over) {
-  //       Game_Over = false;
-  //       Score = 0;
-
-  //       obsArray = [];
-  //       setupGame();
-  //     }
-  //   }
-  // });
+  ctx.save();
+  ctx.fillStyle = "cyan";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.roundRect(
+    canvas.height / 3,
+    canvas.width / 4,
+    canvas.width / 2,
+    canvas.height / 4,
+    [30]
+  );
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "black";
+  ctx.font = "48px Comic Sans MS";
+  ctx.fillText("Loading", canvas.width / 3, canvas.height / 2);
 }
 
 function waitTillAssetsLoaded() {
@@ -99,7 +97,43 @@ function waitTillAssetsLoaded() {
     setTimeout(() => waitTillAssetsLoaded(), 100);
     return;
   }
-  beginGame();
+  showMenu();
+}
+
+function showMenu() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.drawImage(menuSprite, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(playSprite, 50, 250, 120, 40);
+
+
+  ctx.font = "48px Helvetica Neue";
+  ctx.fillStyle = "#FFFFFF";
+  ctx.textAlign = "center";
+
+  // Draw the buttons
+  ctx.font = "24px Helvetica Neue";
+  let playButton = {
+    text: "Play",
+    rect: new Rect2D(50, 250, 120, 40),
+    active: true,
+    onClick: () => {
+      playButton.active = false;
+      Game_Over = false;
+      beginGame();
+    },
+  };
+  renderButton(playButton, "rgba(0,0,0,0.0)","rgba(0,0,0,0.0)");
+
+  canvas.addEventListener("click", (e) => {
+    const mouseX = e.offsetX;
+    const mouseY = e.offsetY;
+    const clickRect = new Rect2D(mouseX, mouseY, 1, 1);
+    console.log(playButton.active, AABBIntersect(clickRect, playButton.rect));
+    if (playButton.active && AABBIntersect(clickRect, playButton.rect)) {
+      playButton.onClick();
+    }
+  });
 }
 
 function main() {
@@ -112,6 +146,12 @@ function main() {
 }
 
 function beginGame() {
+  obsArray = [];
+  if (player) {
+    window.removeEventListener("keydown", player.addKey);
+    window.removeEventListener("keydown", player.removeKey);
+    window.removeEventListener("deviceorientation", player.handleTilt);
+  }
   player = new Player(
     {
       left: "a",
@@ -200,31 +240,21 @@ function update() {
     player.update(updateDelta);
 
     player.updatePseudoSprites();
+    // Check if platform out of view
     obsArray.forEach((obs) => {
       obs.spriteRenderer.update(updateDelta);
       if (obs.rect.y > canvas.height) {
+        obs.reset();
         activeObsCount = OBS_GEN + 1 - Math.floor(score / 250);
         // console.log("activeObsCount:", activeObsCount, "OBS_GEN:", OBS_GEN);
         activeObsCount = Math.max(7 * 2, activeObsCount);
-        // console.log(
-        //   "score: ",
-        //   score.toFixed(0),
-        //   activeObsCount,
-        //   obsArray.length,
-        //   obsArray
-        // );
         if (activeObsCount < obsArray.length && Math.random() > 0.1) {
           obsArray.splice(obsArray.indexOf(obs), 1);
           return;
         }
         let topObs = obsArray.indexOf(obs) - 1;
         topObs = topObs < 0 ? obsArray.length - 1 : topObs;
-        // console.log(
-        //   obsArray[topObs].rect.y,
-        //   canvas.height,
-        //   canvas.height / activeObsCount,
-        //   activeObsCount
-        // );
+
         let reqY =
           obsArray[topObs].rect.y - (2 * canvas.height) / (activeObsCount - 1);
         let tempV = getValidSpawnPoint(
@@ -232,9 +262,18 @@ function update() {
           reqY,
           true
         );
+        if (Math.random() < Math.min(score / 100000, 0.3) + 0.1) {
+          obs.reset();
+          obs.makeMoving(Math.random() * 10 - 5);
+        }
+        if (Math.random() < Math.min(score / 100000, 0.3) + 0.1) {
+          obs.reset();
+          obs.makeBreakable(player);
+        }
         obs.rect.y = tempV.y;
         obs.rect.x = tempV.x;
       }
+      obs.update(ctx);
     });
     // console.log(player.rect);
     checkCollision();
@@ -251,23 +290,25 @@ function update() {
 
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  player.render(ctx)
+  player.render(ctx);
   obsArray.forEach((obs) => {
     obs.render(ctx);
   });
 
   ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.beginPath()
   ctx.roundRect(
     5,
     5,
     10 + 160 + 15 * Math.log10(score > 0 ? score : 1),
     15 + 32,
     [30]
-  );
+    );
+  ctx.closePath()
   ctx.fill();
   ctx.font = "32px Inter";
   ctx.fillStyle = "black";
-  ctx.fillText("Score: " + score.toFixed(0), 32, 10 + 32);
+  ctx.fillText("Score: " + score.toFixed(0), 100, 10 + 32);
 }
 
 function checkCollision() {
@@ -281,6 +322,12 @@ function checkCollision() {
       player.rect.y = obs.rect.y - player.rect.height;
       player.rigidBody.vy = 0;
       player.isGrounded = true;
+      if (obs.breakable && !obs.broken) {
+        obs.broken = true;
+        obs.rect.height = 0;
+        obs.rect.width = 0;
+        console.log("broken");
+      }
       console.log("collided");
     }
   });
@@ -297,6 +344,17 @@ function moveCanvas() {
   }
 }
 function drawGameOverScreen() {
+  window.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "r") {
+      if (Game_Over) {
+        Game_Over = false;
+        score = 0;
+
+        obsArray = [];
+        beginGame();
+      }
+    }
+  });
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "rgba(0,0,0,0.5)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -313,10 +371,51 @@ function drawGameOverScreen() {
     canvas.width / 2 - 120,
     canvas.height / 2 + 30
   );
+  const playAgainButton: Button = {
+    text: "Play Again",
+    rect: new Rect2D(canvas.width / 2 - 60, canvas.height / 2 + 60, 120, 40),
+    active: true,
+    onClick: () => {
+      playAgainButton.active = false;
+      Game_Over = false;
+      beginGame();
+    },
+  };
+  renderButton(playAgainButton);
+
+  canvas.addEventListener("click", (e) => {
+    const mouseX = e.offsetX;
+    const mouseY = e.offsetY;
+    const clickRect = new Rect2D(mouseX, mouseY, 1, 1);
+    console.log(
+      playAgainButton.active,
+      AABBIntersect(clickRect, playAgainButton.rect)
+    );
+    if (
+      playAgainButton.active &&
+      AABBIntersect(clickRect, playAgainButton.rect)
+    ) {
+      playAgainButton.onClick();
+    }
+  });
+}
+
+function renderButton(button: Button, color : string = "white", textColoe: string = "black") {
+  ctx.fillStyle = color;
+  ctx.fillRect(
+    button.rect.x,
+    button.rect.y,
+    button.rect.width,
+    button.rect.height
+  );
+  ctx.fillStyle =textColoe;
+  ctx.font = "20px Arial";
   ctx.fillText(
-    "Press R to restart",
-    canvas.width / 2 - 120,
-    canvas.height / 2 + 60
+    button.text,
+    button.rect.x +
+      button.rect.width / 2 -
+      ctx.measureText(button.text).width / 2,
+    button.rect.y + button.rect.height / 2 + 8
   );
 }
 

@@ -1,4 +1,4 @@
-import Rect2D from "./classes/Rect2D";
+import Rect2D from './classes/Rect2D';
 interface IKeymap {
   left: string;
   right: string;
@@ -6,10 +6,7 @@ interface IKeymap {
 }
 interface Button {
   text: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  rect: Rect2D;
   onClick: () => void;
   active: boolean;
 }

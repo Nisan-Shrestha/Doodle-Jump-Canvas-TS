@@ -69,14 +69,29 @@ class Player {
     this.setupControls();
   }
 
-  setupControls() {
-    window.addEventListener("keydown", (e) => {
-      this.keysPressed.add(e.key);
-    });
+  addKey(e: KeyboardEvent) {
+    this.keysPressed.add(e.key);
+  }
+  removeKey(e: KeyboardEvent) {
+    this.keysPressed.delete(e.key);
+  }
 
-    window.addEventListener("keyup", (e) => {
-      this.keysPressed.delete(e.key);
-    });
+  handleTilt(event: DeviceOrientationEvent) {
+    let gam = event.gamma as number;
+    if (gam < -15) {
+      this.moveLeft(gam / 60);
+      this.tilted = true;
+    } else if (gam > 15) {
+      this.tilted = true;
+      this.moveRight(gam / 60);
+    } else {
+      this.tilted = false;
+    }
+  }
+
+  setupControls() {
+    window.addEventListener("keydown", (e) => this.addKey(e));
+    window.addEventListener("keyup", (e) => this.removeKey(e));
 
     // Event listener for device orientation
     // this.ctx.fillText("left", 10, 120);
@@ -85,19 +100,7 @@ class Player {
     } else {
       console.log("DeviceOrientation is not supported");
     }
-    window.addEventListener("deviceorientation", (event) => {
-      let gam = event.gamma as number;
-      console.log(gam, "aksndkjabnsjkld");
-      if (gam < -15) {
-        this.moveLeft(gam/60);
-        this.tilted = true;
-      } else if (gam > 15) {
-        this.tilted = true;
-        this.moveRight(gam/60);
-      } else {
-        this.tilted = false;
-      }
-    });
+    window.addEventListener("deviceorientation", (event) => this.handleTilt(event));
 
     console.log("DeviceOrientation event listener added");
   }
@@ -126,11 +129,11 @@ class Player {
     }
   }
 
-  moveLeft(value:number = 1) {
-    this.rigidBody.ax = -PLAYER_MOVE_SPEED_X * 3000*value;
+  moveLeft(value: number = 1) {
+    this.rigidBody.ax = -PLAYER_MOVE_SPEED_X * 3000 * value;
     // console.log("234567890-");
   }
-  moveRight(value:number = 1) {
+  moveRight(value: number = 1) {
     this.rigidBody.ax = PLAYER_MOVE_SPEED_X * 3000 * value;
   }
   jump() {
