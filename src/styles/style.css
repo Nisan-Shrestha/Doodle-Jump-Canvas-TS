@@ -1,0 +1,16 @@
+.game-container {
+  box-sizing: border-box;
+  width: 90lvw;
+  height: 90lvh;
+  max-width: 600px;
+  max-height: 1000px;
+  margin: auto;
+  border: 1px solid black;
+} 
+
+#gameCanvas {
+  box-sizing: border-box;
+  background-size: cover;
+  background-position: center;
+}
+
