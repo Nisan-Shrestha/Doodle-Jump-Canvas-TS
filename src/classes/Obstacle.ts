@@ -3,7 +3,6 @@ import { Rect2D } from "./Rect2D";
 import { Vect2D } from "./Vect2D";
 import PowerElement from "./PowerElement";
 import Player from "./Player";
-import { AABBIntersect } from "../utils";
 class Obstacle {
   rect: Rect2D;
   spriteRenderer: SpriteRenderer;

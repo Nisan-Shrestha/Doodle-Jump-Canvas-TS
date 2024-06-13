@@ -21,7 +21,6 @@ if (highScore === null) {
   highScore = "0";
 }
 let highScoreNumber = parseInt(highScore);
-let playListener: EventListener;
 // let globalClickListener ;
 const canvas: HTMLCanvasElement = document.getElementById(
   "gameCanvas"
