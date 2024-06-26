@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,4 +30,4 @@ jobs:
         run: yarn build
 
       - name: Deploy to netlify
-        uses: netlify deploy --site "${secrets.SITE_ID}" --auth "${secrets.NETLIFY_TOKEN}" --dir "dist" --prod
+        run: netlify deploy --site "${secrets.SITE_ID}" --auth "${secrets.NETLIFY_TOKEN}" --dir "dist" --prod
