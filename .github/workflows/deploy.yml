@@ -27,4 +27,4 @@ jobs:
         run: yarn build
 
       - name: Deploy to netlify
-        uses: netlify deploy --site "${secrets.SITE_ID}" --auth "${secrets.NETLIFY_TOKEN}" --dir=dist --prod
+        uses: netlify deploy --site "${secrets.SITE_ID}" --auth "${secrets.NETLIFY_TOKEN}" --dir "dist" --prod
